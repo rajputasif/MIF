@@ -7,3 +7,4 @@ pymongo==4.1.1
 PyYAML==6.0
 streamlit==1.10.0
 streamlit_authenticator==0.2.1
+matplotlib==3.5.0
