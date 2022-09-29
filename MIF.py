@@ -177,10 +177,10 @@ def plot_raw_data(data,caption):
                             showlegend=False))
 
     #---------------------------MACD-------------------------------------------
-    fig.add_trace(go.Scatter(x=df['Date'],y=data['Signal'],
+    fig.add_trace(go.Scatter(x=df['Date'],y=df['Signal'],
                             line=dict(color='blue', width=2),name='Signal',showlegend=False
                             ), row=2, col=1)
-    fig.add_trace(go.Scatter(x=df['Date'],y=data['MACD'],
+    fig.add_trace(go.Scatter(x=df['Date'],y=df['MACD'],
                             line=dict(color='red', width=2),name='MACD',showlegend=False
                             ), row=2, col=1)
     colors = ['green' if val >= 0 
@@ -190,13 +190,13 @@ def plot_raw_data(data,caption):
                         marker_color=colors,name='Histogram',showlegend=False
                         ), row=2, col=1)
     #---------------------------RSI-------------------------------------------
-    fig.add_trace(go.Scatter(x=df['Date'],y=data['RSI'],
+    fig.add_trace(go.Scatter(x=df['Date'],y=df['RSI'],
                             line=dict(color='blue', width=2),name='RSI',showlegend=False
                             ), row=3, col=1)
 
     fig.update_xaxes(tickangle=-45)
     fig.layout.update(template='none',title_text=caption)
-    fig.update_layout(margin=go.layout.Margin(l=25,r=25,t=25),height = 700)
+    fig.update_layout(margin=go.layout.Margin(l=25,r=25,t=25),height = 800)
     
     
     st.plotly_chart(fig, use_container_width=True)
@@ -262,10 +262,10 @@ def plot_ohlc_data(data,caption):
                     showlegend=False))
 
     #---------------------------MACD-------------------------------------------
-    fig.add_trace(go.Scatter(x=df['Date'],y=data['Signal'],
+    fig.add_trace(go.Scatter(x=df['Date'],y=df['Signal'],
                             line=dict(color='blue', width=2),name='Signal',showlegend=False
                             ), row=2, col=1)
-    fig.add_trace(go.Scatter(x=df['Date'],y=data['MACD'],
+    fig.add_trace(go.Scatter(x=df['Date'],y=df['MACD'],
                             line=dict(color='red', width=2),name='MACD',showlegend=False
                             ), row=2, col=1)
     colors = ['green' if val >= 0 
@@ -275,15 +275,14 @@ def plot_ohlc_data(data,caption):
                         marker_color=colors,name='Histogram',showlegend=False
                         ), row=2, col=1)
     #---------------------------RSI-------------------------------------------
-    fig.add_trace(go.Scatter(x=df['Date'],y=data['RSI'],
+    fig.add_trace(go.Scatter(x=df['Date'],y=df['RSI'],
                             line=dict(color='blue', width=2),name='RSI',showlegend=False
                             ), row=3, col=1)
     fig.layout.update(template='none',title_text=caption,xaxis_rangeslider_visible=False)
     fig.update_layout(  margin=go.layout.Margin(l=25,r=25,t=25),
-                        height = 700,
-                        xaxis=dict(type="category"))
-
-    fig.update_xaxes(matches='x', showticklabels=False, showgrid=False, zeroline=False)
+                        height = 700
+                        )
+ 
     
     
     
@@ -307,6 +306,7 @@ def showPlot_KMI_EntryExit(df,
     df['emaShort']=df['Close'].ewm(span=params[6], adjust=True).mean()
     df['emaMid']=df['Close'].ewm(span=params[7], adjust=True).mean()
     df['RSI'] = pandas_ta.rsi(df['Close'], length = 14)
+    df['RSI-SMA'] = df['RSI'].ewm(span=14, adjust=True).mean()
 
     macd,signal = getmacd(df,params[2],params[3],9)
     df['Sh_MACD']=macd
@@ -333,8 +333,10 @@ def showPlot_KMI_EntryExit(df,
 
     #RSI
     axs[0].plot(df['RSI'], color='green',linewidth='1', label="RSI")
-    axs[0].axhline(y=70, color='r', linestyle='--',linewidth='1')
-    axs[0].axhline(y=30, color='b', linestyle='--',linewidth='1')
+    axs[0].plot(df['RSI-SMA'], color='blue',linewidth='1', label="SMA")
+    axs[0].axhline(y=70, color='r', linestyle='--',linewidth='0.75')
+    axs[0].axhline(y=30, color='b', linestyle='--',linewidth='0.75')
+    axs[0].axhline(y=50, color='g', linestyle='--',linewidth='1')
     axs[0].axis(ymin=20,ymax=80)
 
     ##------------------------CandleStick Plot------------------------
@@ -452,6 +454,7 @@ def showPlot_KMI_ST_EntryExit(df,
         outStr += "Long_ST:Short"
 
     df['RSI'] = pandas_ta.rsi(df['Close'], length = 14)
+    df['RSI-SMA'] = df['RSI'].ewm(span=14, adjust=True).mean()
 
     macd,signal = getmacd(df,params[4],params[5],9)
     df['MACD']=macd
@@ -468,8 +471,10 @@ def showPlot_KMI_ST_EntryExit(df,
 
     #RSI
     axs[0].plot(df['RSI'], color='green',linewidth='1', label="RSI")
-    axs[0].axhline(y=70, color='r', linestyle='--',linewidth='1')
-    axs[0].axhline(y=30, color='b', linestyle='--',linewidth='1')
+    axs[0].plot(df['RSI-SMA'], color='blue',linewidth='1', label="SMA")
+    axs[0].axhline(y=70, color='r', linestyle='--',linewidth='0.75')
+    axs[0].axhline(y=30, color='b', linestyle='--',linewidth='0.75')
+    axs[0].axhline(y=50, color='g', linestyle='--',linewidth='1')
     axs[0].axis(ymin=20,ymax=80)
 
     ##------------------------CandleStick Plot------------------------
@@ -558,6 +563,7 @@ viewDataStock = 'Karachi 100'
 qdata = mo.getQuickData(viewDataStock)
 data = mo.getUpdatedDailyData(viewDataStock)
 
+#plot_ohlc_data(data,"DailyData")
 showPlot_KMI_EntryExit(data)
 plot_raw_data(qdata.reset_index(),'Quick Data for '+viewDataStock)
 showPlot_KMI_ST_EntryExit(data)
