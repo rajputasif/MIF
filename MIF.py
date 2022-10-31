@@ -23,6 +23,13 @@ pd.set_option("display.precision", 2)
 from datetime import date
 import numpy as np
 
+def sortWRTDates(indf):
+    indf['DataFrame Column'] = pd.to_datetime(indf['Date'], format="%Y-%m-%d")
+    indf = indf.sort_values(by='DataFrame Column',ignore_index=True)
+    
+    indf = indf.drop('DataFrame Column', axis=1)
+    return indf
+
 def getUpdatedData(mo,ds,symbol,symbolType):
     df = mo.getDailyData(symbol)
     td = ds.getData(symbol,symbolType,isDebug=False)
@@ -355,14 +362,14 @@ def showPlot_KMI_EntryExit(df,
     col2 = 'red'
 
     #plot up prices
-    axs[1].bar(up.index,up.Close-up.Open,width,bottom=up.Open,color=col1)
-    axs[1].bar(up.index,up.High-up.Close,width2,bottom=up.Close,color=col1)
-    axs[1].bar(up.index,up.Low-up.Open,width2,bottom=up.Open,color=col1)
+    axs[1].bar(up.index,up.Close-up.Open,width,bottom=up.Open,color=col1, alpha=0.35)
+    axs[1].bar(up.index,up.High-up.Close,width2,bottom=up.Close,color=col1, alpha=0.35)
+    axs[1].bar(up.index,up.Low-up.Open,width2,bottom=up.Open,color=col1, alpha=0.35)
 
     #plot down prices
-    axs[1].bar(down.index,down.Close-down.Open,width,bottom=down.Open,color=col2)
-    axs[1].bar(down.index,down.High-down.Open,width2,bottom=down.Open,color=col2)
-    axs[1].bar(down.index,down.Low-down.Close,width2,bottom=down.Close,color=col2)
+    axs[1].bar(down.index,down.Close-down.Open,width,bottom=down.Open,color=col2, alpha=0.35)
+    axs[1].bar(down.index,down.High-down.Open,width2,bottom=down.Open,color=col2, alpha=0.35)
+    axs[1].bar(down.index,down.Low-down.Close,width2,bottom=down.Close,color=col2, alpha=0.35)
 
     axs[1].plot(df['Close'],color='blue',linewidth='0.75',linestyle='-', label="Close")
     
@@ -493,14 +500,14 @@ def showPlot_KMI_ST_EntryExit(df,
     col2 = 'red'
 
     #plot up prices
-    axs[1].bar(up.index,up.Close-up.Open,width,bottom=up.Open,color=col1)
-    axs[1].bar(up.index,up.High-up.Close,width2,bottom=up.Close,color=col1)
-    axs[1].bar(up.index,up.Low-up.Open,width2,bottom=up.Open,color=col1)
+    axs[1].bar(up.index,up.Close-up.Open,width,bottom=up.Open,color=col1, alpha=0.35)
+    axs[1].bar(up.index,up.High-up.Close,width2,bottom=up.Close,color=col1, alpha=0.35)
+    axs[1].bar(up.index,up.Low-up.Open,width2,bottom=up.Open,color=col1, alpha=0.35)
 
     #plot down prices
-    axs[1].bar(down.index,down.Close-down.Open,width,bottom=down.Open,color=col2)
-    axs[1].bar(down.index,down.High-down.Open,width2,bottom=down.Open,color=col2)
-    axs[1].bar(down.index,down.Low-down.Close,width2,bottom=down.Close,color=col2)
+    axs[1].bar(down.index,down.Close-down.Open,width,bottom=down.Open,color=col2, alpha=0.35)
+    axs[1].bar(down.index,down.High-down.Open,width2,bottom=down.Open,color=col2, alpha=0.35)
+    axs[1].bar(down.index,down.Low-down.Close,width2,bottom=down.Close,color=col2, alpha=0.35)
 
     axs[1].plot(df['Close'],color='green',linewidth='0.25',linestyle='--', label="Close")
 
@@ -562,6 +569,7 @@ st.info('MongoDB connected')
 viewDataStock = 'Karachi 100'
 qdata = mo.getQuickData(viewDataStock)
 data = mo.getUpdatedDailyData(viewDataStock)
+data = sortWRTDates(data)
 
 #plot_ohlc_data(data,"DailyData")
 showPlot_KMI_EntryExit(data)
