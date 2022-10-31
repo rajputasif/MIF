@@ -509,7 +509,7 @@ def showPlot_KMI_ST_EntryExit(df,
     axs[1].bar(down.index,down.High-down.Open,width2,bottom=down.Open,color=col2, alpha=0.35)
     axs[1].bar(down.index,down.Low-down.Close,width2,bottom=down.Close,color=col2, alpha=0.35)
 
-    axs[1].plot(df['Close'],color='green',linewidth='0.25',linestyle='--', label="Close")
+    axs[1].plot(df['Close'],color='blue', label="Close")
 
     #--------------------------------------Dip Detection
     df['change'] = df['Close'].pct_change()*100
