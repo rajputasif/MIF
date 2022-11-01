@@ -23,6 +23,8 @@ pd.set_option("display.precision", 2)
 from datetime import date
 import numpy as np
 
+
+
 def sortWRTDates(indf):
     indf['DataFrame Column'] = pd.to_datetime(indf['Date'], format="%Y-%m-%d")
     indf = indf.sort_values(by='DataFrame Column',ignore_index=True)
@@ -285,6 +287,13 @@ def plot_ohlc_data(data,caption):
     fig.add_trace(go.Scatter(x=df['Date'],y=df['RSI'],
                             line=dict(color='blue', width=2),name='RSI',showlegend=False
                             ), row=3, col=1)
+
+    fig.update_xaxes(
+        rangebreaks=[
+            dict(bounds=["sat", "mon"]), #hide weekends
+        ]
+    )
+    
     fig.layout.update(template='none',title_text=caption,xaxis_rangeslider_visible=False)
     fig.update_layout(  margin=go.layout.Margin(l=25,r=25,t=25),
                         height = 700
@@ -571,7 +580,7 @@ qdata = mo.getQuickData(viewDataStock)
 data = mo.getUpdatedDailyData(viewDataStock)
 data = sortWRTDates(data)
 
-#plot_ohlc_data(data,"DailyData")
+# plot_ohlc_data(data,"DailyData")
 showPlot_KMI_EntryExit(data)
 plot_raw_data(qdata.reset_index(),'Quick Data for '+viewDataStock)
 showPlot_KMI_ST_EntryExit(data)
