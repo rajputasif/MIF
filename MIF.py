@@ -207,7 +207,7 @@ def plot_raw_data(data,caption):
 
     fig.update_xaxes(tickangle=-45)
     fig.layout.update(template='none',title_text=caption)
-    fig.update_layout(margin=go.layout.Margin(l=25,r=25,t=25),height = 400)
+    fig.update_layout(margin=go.layout.Margin(l=25,r=25,t=25))
     
     
     st.plotly_chart(fig, use_container_width=True)
@@ -631,7 +631,7 @@ with st.form('Add Stocks',clear_on_submit=True):
                                         name="Close",
                                         showlegend=False
                                         ))
-        fig.update_layout(margin=go.layout.Margin(l=25,r=25,t=25),height = 200)
+        fig.update_layout(margin=go.layout.Margin(l=25,r=25,t=25))
         fig.update_xaxes(tickangle=-45)
         fig.layout.update(template='none',title_text='Daily KSE100')
         st.plotly_chart(fig, use_container_width=True)
