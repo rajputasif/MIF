@@ -576,11 +576,13 @@ watchCol = db['watchData']
 st.info('MongoDB connected')
 
 viewDataStock = 'Karachi 100'
-qdata = mo.getQuickData(viewDataStock)
+
 data = mo.getUpdatedDailyData(viewDataStock)
 data = sortWRTDates(data)
 
 # plot_ohlc_data(data,"DailyData")
 showPlot_KMI_EntryExit(data)
-plot_raw_data(qdata.reset_index(),'Quick Data for '+viewDataStock)
 showPlot_KMI_ST_EntryExit(data)
+
+qdata = mo.getQuickData(viewDataStock)
+plot_raw_data(qdata.reset_index(),'Quick Data for '+viewDataStock)
