@@ -575,7 +575,7 @@ def parseDPS2DataFrame(dataURL):
     data = pd.DataFrame(output, columns = ['Date', 'Close', 'Volume'])
     return data.iloc[::-1]
 
-st.header('Stock/PSX analysis with ShortScalp strategy!!!')
+st.header('Karachi 100 Shortscalp Reporting for MIF investing')
 
 dns.resolver.default_resolver=dns.resolver.Resolver(configure=False)
 dns.resolver.default_resolver.nameservers=['8.8.8.8']
@@ -587,52 +587,28 @@ gotCol = db['gotData']
 watchCol = db['watchData']
 st.info('MongoDB connected')
 
-stocks = db.dailyData.distinct("symbol")
-# st.text(stocks)
-def remove_values_from_list(the_list, val):
-   return [value for value in the_list if value != val]
+viewDataStock = 'Karachi 100'
 
-stocks = remove_values_from_list(stocks,'Karachi 100')
-stocks = remove_values_from_list(stocks,'Karachi Meezan 30')
-stocks = remove_values_from_list(stocks,'OGTi')
-stocks = remove_values_from_list(stocks,'BKTi')
+data = mo.getUpdatedDailyData(viewDataStock)
+data = sortWRTDates(data)
 
-stocks.insert(0, 'BKTi')
-stocks.insert(0, 'OGTi')
-stocks.insert(0, 'Karachi Meezan 30')
-stocks.insert(0, 'Karachi 100')
+# plot_ohlc_data(data,"DailyData")
+showPlot_KMI_EntryExit(data)
+showPlot_KMI_ST_EntryExit(data)
 
-with st.form('Add Stocks',clear_on_submit=True):
-    stocksToAdd = st.selectbox('Ticker*:',stocks)
-    addStockButton = st.form_submit_button('Analyze!!!')
+qdata = mo.getQuickData(viewDataStock)
+plot_raw_data(qdata.reset_index(),'Quick Data for '+viewDataStock)
 
-    if addStockButton: 
-        st.info(stocksToAdd)
-        
-        data = mo.getUpdatedDailyData(stocksToAdd)
-        data = sortWRTDates(data)
-        showPlot_KMI_EntryExit(data)
-        showPlot_KMI_ST_EntryExit(data)
+response = requests.get('https://dps.psx.com.pk/timeseries/int/KSE100')
+data = parseDPS2DataFrame(response.json())
 
-        qdata = mo.getQuickData(stocksToAdd)
-        plot_raw_data(qdata.reset_index(),'Quick Data for '+stocksToAdd)
-
-        if(stocksToAdd=='Karachi 100'):
-            stocksToAdd='KSE100'
-        if(stocksToAdd=='Karachi Meezan 30'):
-            stocksToAdd='KMI30'
-
-        response = requests.get('https://dps.psx.com.pk/timeseries/int/'+stocksToAdd)
-        st.info('https://dps.psx.com.pk/timeseries/int/'+stocksToAdd)
-        data = parseDPS2DataFrame(response.json())
-
-        #--------------------------Plotting daily stuff--------------------------
-        fig = go.Figure(go.Scatter(   x=data['Date'],y=data['Close'], 
-                                        name="Close",
-                                        showlegend=False
-                                        ))
-        fig.update_layout(margin=go.layout.Margin(l=25,r=25,t=25),height = 800)
-        fig.update_xaxes(tickangle=-45)
-        fig.layout.update(template='none',title_text='Daily KSE100')
-        st.plotly_chart(fig, use_container_width=True)
-        #--------------------------Plotting daily stuff--------------------------
+#--------------------------Plotting daily stuff--------------------------
+fig = go.Figure(go.Scatter(   x=data['Date'],y=data['Close'], 
+                                name="Close",
+                                showlegend=False
+                                ))
+fig.update_layout(margin=go.layout.Margin(l=25,r=25,t=25),height = 800)
+fig.update_xaxes(tickangle=-45)
+fig.layout.update(template='none',title_text='Daily KSE100')
+st.plotly_chart(fig, use_container_width=True)
+#--------------------------Plotting daily stuff--------------------------
