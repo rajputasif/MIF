@@ -17,6 +17,8 @@ import pandas_ta
 import pandas_ta as ta
 import math
 
+import requests
+
 
 pd.set_option("display.precision", 2)
 
@@ -563,6 +565,16 @@ def showPlot_KMI_ST_EntryExit(df,
 
     st.pyplot(fig)
 
+def parseDPS2DataFrame(dataURL):
+    output = []
+    for i in  range(len(dataURL['data'])):
+        ts = datetime.fromtimestamp(int(dataURL['data'][i][0])).strftime('%d/%m/%Y %H:%M:%S')
+        close = dataURL['data'][i][1]
+        vol = dataURL['data'][i][2]
+        output.append([ts,close,vol])
+    data = pd.DataFrame(output, columns = ['Date', 'Close', 'Volume'])
+    return data.iloc[::-1]
+
 st.header('Karachi 100 Shortscalp Reporting for MIF investing')
 
 dns.resolver.default_resolver=dns.resolver.Resolver(configure=False)
@@ -586,3 +598,17 @@ showPlot_KMI_ST_EntryExit(data)
 
 qdata = mo.getQuickData(viewDataStock)
 plot_raw_data(qdata.reset_index(),'Quick Data for '+viewDataStock)
+
+response = requests.get('https://dps.psx.com.pk/timeseries/int/OGTi')
+data = parseDPS2DataFrame(response.json())
+
+#--------------------------Plotting daily stuff--------------------------
+fig = go.Figure(go.Scatter(   x=data['Date'],y=data['Close'], 
+                                name="Close",
+                                showlegend=False
+                                ))
+fig.update_layout(margin=go.layout.Margin(l=25,r=25,t=25),height = 800)
+fig.update_xaxes(tickangle=-45)
+fig.layout.update(template='none',title_text='Daily KSE100')
+st.plotly_chart(fig, use_container_width=True)
+#--------------------------Plotting daily stuff--------------------------
