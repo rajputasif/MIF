@@ -599,7 +599,7 @@ showPlot_KMI_ST_EntryExit(data)
 qdata = mo.getQuickData(viewDataStock)
 plot_raw_data(qdata.reset_index(),'Quick Data for '+viewDataStock)
 
-response = requests.get('https://dps.psx.com.pk/timeseries/int/OGTi')
+response = requests.get('https://dps.psx.com.pk/timeseries/int/KSE100')
 data = parseDPS2DataFrame(response.json())
 
 #--------------------------Plotting daily stuff--------------------------
