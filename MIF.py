@@ -652,3 +652,4 @@ with st.form('Add Stocks',clear_on_submit=True):
         fig.update_layout(  margin=go.layout.Margin(l=25,r=25,t=25),
                             height = 700
                             )
+        st.plotly_chart(fig, use_container_width=True)
