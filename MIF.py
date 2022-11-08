@@ -633,6 +633,6 @@ with st.form('Add Stocks',clear_on_submit=True):
                                         ))
         fig.update_layout(margin=go.layout.Margin(l=25,r=25,t=25))
         fig.update_xaxes(tickangle=-45)
-        fig.layout.update(template='none',title_text='Daily KSE100')
+        fig.layout.update(template='none',title_text='Daily '+stocksToAdd)
         st.plotly_chart(fig, use_container_width=True)
         #--------------------------Plotting daily stuff--------------------------
