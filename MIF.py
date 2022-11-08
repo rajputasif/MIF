@@ -636,3 +636,19 @@ with st.form('Add Stocks',clear_on_submit=True):
         fig.layout.update(template='none',title_text='Daily '+stocksToAdd)
         st.plotly_chart(fig, use_container_width=True)
         #--------------------------Plotting daily stuff--------------------------
+
+        #-----------------------------OHLC plot----------------------------------
+        data['Date'] = pd.to_datetime(data['Date'], format='%d/%m/%Y %H:%M:%S')
+        data.set_index('Date',inplace=True)
+        df = data['Close'].resample('5Min').ohlc(_method='ohlc')
+        df.rename({'open':'Open', 'high':'High', 'low':'Low', 'close':'Close'}, axis=1,inplace=True)
+        fig = go.Figure(go.Candlestick(x=df.index,
+                    open=df['Open'],
+                    high=df['High'],
+                    low=df['Low'],
+                    close=df['Close'], 
+                    showlegend=False))
+        fig.layout.update(template='none',title_text='5-Min OHLC',xaxis_rangeslider_visible=False)
+        fig.update_layout(  margin=go.layout.Margin(l=25,r=25,t=25),
+                            height = 700
+                            )
