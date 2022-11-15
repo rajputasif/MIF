@@ -339,6 +339,7 @@ def showPlot_KMI_EntryExit(df,
 
     x=df.iloc[-1]
     outStr =("Sh_MACD_Signal:"+str(x.Sh_Signal<x.Sh_MACD)+"\n"+
+            "Quick_Histogram:"+str(x.Sh_MACD-x.Sh_Signal)+"\n"+
             "Long_Histogram:"+str(x.MACD-x.Signal)+"\n"+
             "Closing:"+str(df.iloc[-1].Close)
             )
