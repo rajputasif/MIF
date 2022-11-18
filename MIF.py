@@ -1,6 +1,6 @@
 import streamlit as st
 from datetime import date
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 import streamlit as st
@@ -18,6 +18,7 @@ import pandas_ta as ta
 import math
 
 import requests
+import pytz
 
 
 pd.set_option("display.precision", 2)
@@ -569,7 +570,8 @@ def showPlot_KMI_ST_EntryExit(df,
 def parseDPS2DataFrame(dataURL):
     output = []
     for i in  range(len(dataURL['data'])):
-        ts = datetime.fromtimestamp(int(dataURL['data'][i][0])).strftime('%d/%m/%Y %H:%M:%S')
+        tsdt = datetime.fromtimestamp(int(dataURL['data'][i][0])) + timedelta(hours=5)
+        ts = tsdt.strftime('%d/%m/%Y %H:%M:%S')
         close = dataURL['data'][i][1]
         vol = dataURL['data'][i][2]
         output.append([ts,close,vol])
