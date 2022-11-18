@@ -18,7 +18,14 @@ import pandas_ta as ta
 import math
 
 import requests
-import pytz
+
+
+import logging
+
+logging.basicConfig(level='INFO')
+
+mlogger = logging.getLogger('matplotlib')
+mlogger.setLevel(logging.WARNING)
 
 
 pd.set_option("display.precision", 2)
@@ -150,7 +157,7 @@ class MongoObject:
 def plot_raw_data(data,caption):
     fig = go.Figure()
 
-    data = data.iloc[-150:]
+    data = data.iloc[-200:]
     data['EMA9']=data['Close'].ewm(span=9, adjust=True).mean()
     data['EMA21']=data['Close'].ewm(span=21, adjust=True).mean()
     data['EMA100']=data['Close'].ewm(span=100, adjust=True).mean()
@@ -580,7 +587,119 @@ def parseDPS2DataFrame(dataURL):
     data = pd.DataFrame(output, columns = ['Date', 'Close', 'Volume'])
     return data.iloc[::-1]
 
-st.header('Stock/PSX analysis with ShortScalp strategy!!!')
+def show_KMI_Plotly(df,
+                        params=[5,-3.5,4,12,12,26,9,25]):
+    data = df.iloc[-100:]
+    data['EMA9']=data['Close'].ewm(span=9, adjust=True).mean()
+    data['EMA21']=data['Close'].ewm(span=21, adjust=True).mean()
+    data['EMA100']=data['Close'].ewm(span=50, adjust=True).mean()
+    macd,signal = getmacd(data,12,26,9)
+    data['MACD']=macd
+    data['Signal']=signal
+    data['Hist']=macd-signal
+    data['RSI'] = pandas_ta.rsi(data['Close'], length = 14)
+    data['RSI-EMA'] = data['RSI'].ewm(span=9, adjust=True).mean()
+
+    macd,signal = getmacd(df,params[2],params[3],9)
+    data['Sh_MACD']=macd
+    data['Sh_Signal']=signal
+    data['Sh_Hist']=macd-signal
+
+    df = data.iloc[:]
+
+
+    # fig = go.Figure()
+    fig = make_subplots(    rows=4,
+                            cols=1,
+                            shared_xaxes=True,
+                            vertical_spacing=0.0, 
+                            row_heights=[0.55,0.15,0.15,0.15])
+
+    fig.add_trace(go.Candlestick(x=df['Date'],
+                    open=df['Open'],
+                    high=df['High'],
+                    low=df['Low'],
+                    close=df['Close'], 
+                    showlegend=False))
+
+    fig.add_trace(go.Scatter(x=df['Date'], 
+                                y=df['EMA9'], 
+                                opacity=0.7, 
+                                line=dict(color='blue', width=1), 
+                                name='EMA 9',
+                                showlegend=False))
+    fig.add_trace(go.Scatter(x=df['Date'], 
+                            y=df['EMA21'], 
+                            opacity=0.7, 
+                            line=dict(color='green', width=1), 
+                            name='EMA 21',
+                            showlegend=False))
+    fig.add_trace(go.Scatter(x=df['Date'], 
+                    y=df['Close'], 
+                    opacity=0.7, 
+                    line=dict(color='brown', width=3), 
+                    name='Close',
+                    showlegend=False))
+
+    #====================Long MACD========================================
+    fig.add_trace(go.Scatter(x=df['Date'],y=df['Signal'],
+                                line=dict(color='blue', width=2),name='Signal',showlegend=False
+                                ), row=3, col=1)
+    fig.add_trace(go.Scatter(x=df['Date'],y=df['MACD'],
+                            line=dict(color='red', width=2),name='MACD',showlegend=False
+                            ), row=3, col=1)
+    colors = ['green' if val >= 0 
+            else 'red' for val in df['Hist']]
+    fig.add_trace(go.Bar(x=df['Date'], 
+                        y=df['Hist'],
+                        marker_color=colors,name='Histogram',showlegend=False
+                        ), row=3, col=1)
+    #====================Long MACD========================================
+
+    #====================Short MACD========================================
+    fig.add_trace(go.Scatter(x=df['Date'],y=df['Sh_Signal'],
+                                line=dict(color='blue', width=2),name='Sh_Signal',showlegend=False
+                                ), row=2, col=1)
+    fig.add_trace(go.Scatter(x=df['Date'],y=df['Sh_MACD'],
+                            line=dict(color='red', width=2),name='Sh_MACD',showlegend=False
+                            ), row=2, col=1)
+    colors = ['green' if val >= 0 
+            else 'red' for val in df['Sh_Hist']]
+    fig.add_trace(go.Bar(x=df['Date'], 
+                        y=df['Sh_Hist'],
+                        marker_color=colors,name='Histogram',showlegend=False
+                        ), row=2, col=1)
+    #====================Short MACD========================================
+
+    fig.add_trace(go.Scatter(x=df['Date'],y=df['RSI'],
+                                line=dict(color='blue', width=1),name='RSI',showlegend=False
+                                ), row=4, col=1)
+    fig.add_trace(go.Scatter(x=df['Date'],y=df['RSI-EMA'],
+                                line=dict(color='green', width=1),name='RSI-EMA',showlegend=False
+                                ), row=4, col=1)
+
+    fig.update_xaxes(
+            rangebreaks=[
+                dict(bounds=["sat", "mon"]), #hide weekends
+            ]
+        )
+        
+    x=df.iloc[-1]
+    caption =(  "Closing:"+str(math.floor(x.Close))+" <br> "+
+                "Sh_MACD_Signal:"+str(x.Sh_MACD>x.Sh_Signal)+" ::: "+
+                "MACD_Signal:"+str(x.MACD>x.Signal)+" <br> "+
+                "Long_Histogram:"+str(math.floor(x.MACD-x.Signal))
+            )
+
+    fig.update_yaxes(tickformat=',d')
+    fig.layout.update(template='none',title_text=caption,xaxis_rangeslider_visible=False)
+    fig.update_layout(  margin=go.layout.Margin(r=25,t=25),
+                        height = 800
+                        )
+
+    st.plotly_chart(fig, use_container_width=True)  
+
+st.header('Stock/PSX analysis with QuickScalp strategy!!!')
 
 dns.resolver.default_resolver=dns.resolver.Resolver(configure=False)
 dns.resolver.default_resolver.nameservers=['8.8.8.8']
@@ -616,8 +735,9 @@ with st.form('Add Stocks',clear_on_submit=True):
         
         data = mo.getUpdatedDailyData(stocksToAdd)
         data = sortWRTDates(data)
-        showPlot_KMI_EntryExit(data)
-        showPlot_KMI_ST_EntryExit(data)
+        show_KMI_Plotly(data)
+        dailyData = data.copy()
+        
 
         qdata = mo.getQuickData(stocksToAdd)
         plot_raw_data(qdata.reset_index(),'Quick Data for '+stocksToAdd)
@@ -660,3 +780,5 @@ with st.form('Add Stocks',clear_on_submit=True):
         # fig.update_xaxes(tickangle=-45)
         fig.update_yaxes(tickformat=',d')
         st.plotly_chart(fig, use_container_width=True)
+
+        showPlot_KMI_ST_EntryExit(dailyData)
