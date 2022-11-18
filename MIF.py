@@ -208,7 +208,9 @@ def plot_raw_data(data,caption):
 
     fig.update_xaxes(tickangle=-45)
     fig.layout.update(template='none',title_text=caption)
-    fig.update_layout(margin=go.layout.Margin(l=25,r=25,t=25))
+    fig.update_layout(margin=go.layout.Margin(r=25,t=25))
+    fig.update_xaxes(tickangle=-45)
+    fig.update_yaxes(tickformat=',d')
     
     
     st.plotly_chart(fig, use_container_width=True)
@@ -634,8 +636,10 @@ with st.form('Add Stocks',clear_on_submit=True):
                                         name="Close",
                                         showlegend=False
                                         ))
-        fig.update_layout(margin=go.layout.Margin(l=25,r=25,t=25))
+        fig.update_layout(margin=go.layout.Margin(r=25,t=25))
         fig.update_xaxes(tickangle=-45)
+        fig.update_yaxes(tickformat=',d')
+
         fig.layout.update(template='none',title_text='Daily '+stocksToAdd)
         st.plotly_chart(fig, use_container_width=True)
         #--------------------------Plotting daily stuff--------------------------
@@ -652,7 +656,7 @@ with st.form('Add Stocks',clear_on_submit=True):
                     close=df['Close'], 
                     showlegend=False))
         fig.layout.update(template='none',title_text='5-Min OHLC',xaxis_rangeslider_visible=False)
-        fig.update_layout(  margin=go.layout.Margin(l=25,r=25,t=25),
-                            height = 700
-                            )
+        fig.update_layout(margin=go.layout.Margin(r=25,t=25))
+        # fig.update_xaxes(tickangle=-45)
+        fig.update_yaxes(tickformat=',d')
         st.plotly_chart(fig, use_container_width=True)
