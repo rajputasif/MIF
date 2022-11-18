@@ -349,8 +349,8 @@ def showPlot_KMI_EntryExit(df,
 
     x=df.iloc[-1]
     outStr =("Sh_MACD_Signal:"+str(x.Sh_Signal<x.Sh_MACD)+"\n"+
-            "Quick_Histogram:"+str(x.Sh_MACD-x.Sh_Signal)+"\n"+
-            "Long_Histogram:"+str(x.MACD-x.Signal)+"\n"+
+            "Quick_Histogram:"+str(math.floor(x.Sh_MACD-x.Sh_Signal))+"\n"+
+            "Long_Histogram:"+str(math.floor(x.MACD-x.Signal))+"\n"+
             "Closing:"+str(df.iloc[-1].Close)
             )
     
@@ -735,8 +735,11 @@ with st.form('Add Stocks',clear_on_submit=True):
         
         data = mo.getUpdatedDailyData(stocksToAdd)
         data = sortWRTDates(data)
-        show_KMI_Plotly(data)
+        
+        showPlot_KMI_EntryExit(data)
+        # show_KMI_Plotly(data)
         dailyData = data.copy()
+        showPlot_KMI_ST_EntryExit(dailyData)
         
 
         qdata = mo.getQuickData(stocksToAdd)
@@ -781,4 +784,4 @@ with st.form('Add Stocks',clear_on_submit=True):
         fig.update_yaxes(tickformat=',d')
         st.plotly_chart(fig, use_container_width=True)
 
-        showPlot_KMI_ST_EntryExit(dailyData)
+        
