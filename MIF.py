@@ -579,7 +579,7 @@ def showPlot_KMI_ST_EntryExit(df,
 def parseDPS2DataFrame(dataURL):
     output = []
     for i in  range(len(dataURL['data'])):
-        tsdt = datetime.fromtimestamp(int(dataURL['data'][i][0])) + timedelta(hours=5.5)
+        tsdt = datetime.fromtimestamp(int(dataURL['data'][i][0])) + timedelta(hours=5)
         ts = tsdt.strftime('%d/%m/%Y %H:%M:%S')
         close = dataURL['data'][i][1]
         vol = dataURL['data'][i][2]
