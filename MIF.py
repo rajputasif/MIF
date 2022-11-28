@@ -33,7 +33,7 @@ pd.set_option("display.precision", 2)
 from datetime import date
 import numpy as np
 
-
+st.set_page_config(layout="wide")
 
 def sortWRTDates(indf):
     indf['DataFrame Column'] = pd.to_datetime(indf['Date'], format="%Y-%m-%d")
@@ -315,8 +315,6 @@ def plot_ohlc_data(data,caption):
     
     
     st.plotly_chart(fig, use_container_width=True)   
-
-st.set_page_config(layout="wide")
 
 def showPlot_KMI_EntryExit(df,
                         params=[5,-3.5,4,12,12,26,9,25]
@@ -701,6 +699,13 @@ def show_KMI_Plotly(df,
 
 st.header('Stock/PSX analysis with QuickScalp strategy!!!')
 
+plotDefault = False
+
+urlParams = st.experimental_get_query_params()
+if ('stock' in urlParams):
+    valDefault = urlParams['stock'][0]
+    plotDefault = True
+
 dns.resolver.default_resolver=dns.resolver.Resolver(configure=False)
 dns.resolver.default_resolver.nameservers=['8.8.8.8']
 myclient = pymongo.MongoClient("mongodb+srv://readonly:readonly@cluster0.ss8kmkn.mongodb.net/?retryWrites=true&w=majority")
@@ -710,6 +715,12 @@ userCol = db['userData']
 gotCol = db['gotData']
 watchCol = db['watchData']
 st.info('MongoDB connected')
+
+if plotDefault:
+    st.info('Please wait, plotting the default value')
+    data = mo.getUpdatedDailyData(valDefault)
+    data = sortWRTDates(data)    
+    showPlot_KMI_EntryExit(data)
 
 stocks = db.dailyData.distinct("symbol")
 # st.text(stocks)
