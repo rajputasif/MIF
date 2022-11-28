@@ -232,7 +232,7 @@ def getmacd(df,a,b,c):
 
 def plot_ohlc_data(data,caption):
 
-    data = data.iloc[-100:]
+    data = data.iloc[-150:]
     data['EMA9']=data['Close'].ewm(span=9, adjust=True).mean()
     data['EMA21']=data['Close'].ewm(span=21, adjust=True).mean()
     data['EMA100']=data['Close'].ewm(span=100, adjust=True).mean()
@@ -241,7 +241,8 @@ def plot_ohlc_data(data,caption):
     data['Signal']=signal
     data['Hist']=macd-signal
     data['RSI'] = pandas_ta.rsi(data['Close'], length = 14)
-    df = data.iloc[:]
+    data['RSI-EMA'] = data['RSI'].ewm(span=9, adjust=True).mean()
+    df = data.iloc[30:]
 
     
     # fig = go.Figure()
@@ -299,6 +300,9 @@ def plot_ohlc_data(data,caption):
     fig.add_trace(go.Scatter(x=df['Date'],y=df['RSI'],
                             line=dict(color='blue', width=2),name='RSI',showlegend=False
                             ), row=3, col=1)
+    fig.add_trace(go.Scatter(x=df['Date'],y=df['RSI-EMA'],
+                                line=dict(color='green', width=1),name='RSI-EMA',showlegend=False
+                                ), row=3, col=1)
 
     fig.update_xaxes(
         rangebreaks=[
@@ -714,13 +718,13 @@ mo = MongoObject(db)
 userCol = db['userData']
 gotCol = db['gotData']
 watchCol = db['watchData']
-st.info('MongoDB connected')
+st.success('MongoDB connected!', icon="✅")
 
 if plotDefault:
-    st.info('Please wait, plotting the default value')
+    # st.info('Plotting the default value')
     data = mo.getUpdatedDailyData(valDefault)
     data = sortWRTDates(data)    
-    showPlot_KMI_EntryExit(data)
+    plot_ohlc_data(data,caption=valDefault)
 
 stocks = db.dailyData.distinct("symbol")
 # st.text(stocks)
