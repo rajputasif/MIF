@@ -718,7 +718,7 @@ mo = MongoObject(db)
 userCol = db['userData']
 gotCol = db['gotData']
 watchCol = db['watchData']
-st.success('MongoDB connected!', icon="✅")
+st.success('MongoDB connected!')
 
 if plotDefault:
     # st.info('Plotting the default value')
