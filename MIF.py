@@ -311,9 +311,7 @@ def plot_ohlc_data(data,caption):
     )
     
     fig.layout.update(template='none',title_text=caption,xaxis_rangeslider_visible=False)
-    fig.update_layout(  margin=go.layout.Margin(l=25,r=25,t=25),
-                        height = 700
-                        )
+    fig.update_layout(margin=go.layout.Margin(l=40,r=25,t=25))
  
     
     
