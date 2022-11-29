@@ -311,9 +311,7 @@ def plot_ohlc_data(data,caption):
     )
     
     fig.layout.update(template='none',title_text=caption,xaxis_rangeslider_visible=False)
-    fig.update_layout(margin=go.layout.Margin(l=40,r=25,t=25))
- 
-    
+    fig.update_layout(margin=go.layout.Margin(l=40,r=25,t=25))   
     
     
     st.plotly_chart(fig, use_container_width=True)   
@@ -699,6 +697,101 @@ def show_KMI_Plotly(df,
 
     st.plotly_chart(fig, use_container_width=True)  
 
+def plotBasicTA(ds,params):
+    [shortLen,midLen,longLen,macdShortLen,macdLongLen] = params
+
+    df = ds.copy()
+    df=df.set_index('Date')
+    df = df.iloc[-150:]
+    df['emaShort']=df['Close'].ewm(span=shortLen, adjust=True).mean()
+    df['emaMid']=df['Close'].ewm(span=midLen, adjust=True).mean()
+    df['emaLong']=df['Close'].ewm(span=longLen, adjust=True).mean() 
+
+    df['RSI'] = pandas_ta.rsi(df['Close'], length = 14)
+    df['RSI-SMA'] = df['RSI'].ewm(span=14, adjust=True).mean()
+            
+    macd,signal = getmacd(df,macdShortLen,macdLongLen,9)
+    df['MACD']=macd
+    df['Signal']=signal        
+
+    df=df.iloc[50:] #TODO: Fixed number of days clipping to avoid RSI and ATR
+
+    plt.rcParams['figure.figsize'] = (15, 10)
+
+    fig, axs = plt.subplots(3, sharex=True, gridspec_kw={'height_ratios':[1,3,1]})
+    plt.subplots_adjust(hspace=.0)
+    plt.xticks(rotation=40)
+    plt.locator_params(axis='x', nbins=10)
+
+    axs[0].plot(df['RSI'], color='green',linewidth='1', label="RSI")
+    axs[0].plot(df['RSI-SMA'], color='blue',linewidth='1', label="RSI-EMA")
+    axs[0].axhline(y=70, color='r', linestyle='--',linewidth='0.75')
+    axs[0].axhline(y=30, color='b', linestyle='--',linewidth='0.75')
+    axs[0].axhline(y=50, color='g', linestyle='--',linewidth='1')
+    axs[0].axis(ymin=20,ymax=80)
+
+    ##------------------------CandleStick Plot------------------------
+    if(df.isnull().sum().Open<3):
+        prices = df
+
+        #define width of candlestick elements
+        width = 0.9
+        width2 = .1
+
+        #define up and down prices
+        up = prices[prices.Close>=prices.Open]
+        down = prices[prices.Close<prices.Open]
+
+        #define colors to use
+        col1 = 'green'
+        col2 = 'red'
+
+        #plot up prices
+
+        axs[1].bar(up.index,up.Close-up.Open,width,bottom=up.Open,color=col1, alpha=0.35)
+        axs[1].bar(up.index,up.High-up.Close,width2,bottom=up.Close,color=col1, alpha=0.35)
+        axs[1].bar(up.index,up.Low-up.Open,width2,bottom=up.Open,color=col1, alpha=0.35)
+
+        #plot down prices
+        axs[1].bar(down.index,down.Close-down.Open,width,bottom=down.Open,color=col2, alpha=0.35)
+        axs[1].bar(down.index,down.High-down.Open,width2,bottom=down.Open,color=col2, alpha=0.35)
+        axs[1].bar(down.index,down.Low-down.Close,width2,bottom=down.Close,color=col2, alpha=0.35)
+
+    axs[1].fill_between(df.index, max(df.Close), min(df.Close),  
+                where=(df.MACD>df.Signal) , color = 'green', alpha = 0.1)
+
+    axs[1].plot(df['Close'],color='blue', label="Close")
+    ##------------------------CandleStick Plot------------------------
+
+
+    axs[1].plot(df['emaShort'],linestyle='--')
+    axs[1].plot(df['emaMid'],linestyle='--')
+    axs[1].plot(df['emaLong'],linewidth='2',linestyle='--')
+
+    x=df.iloc[-1]
+    outStr =("Closing:"+str(x.Close)+"\n"+
+            "Long_Histogram:"+str(math.floor(x.MACD-x.Signal))+"\n"+
+            "RSI:"+str(math.floor(x.RSI))            
+            )
+    ax = plt.gca()
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    ax.text(0.1, 0.1, outStr, transform=ax.transAxes, fontsize=14,verticalalignment='bottom', bbox=props)
+
+    ax = plt.gca()
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+
+    axs[2].plot(df['Signal'], color='orange',linewidth='1', label="Signal")
+    axs[2].plot(df['MACD'], color='green',linewidth='1', label="MACD")
+    axs[2].axhline(y=0, color='r', linestyle='-',linewidth='1')
+
+    for ax in axs:
+        ax.label_outer()
+        ax.grid()
+        ax.legend(loc="upper left")
+        ax.xaxis.set_major_locator(plt.MaxNLocator(15))
+    
+    st.pyplot(fig)
+
 st.header('Stock/PSX analysis with QuickScalp strategy!!!')
 
 plotDefault = False
@@ -722,7 +815,7 @@ if plotDefault:
     # st.info('Plotting the default value')
     data = mo.getUpdatedDailyData(valDefault)
     data = sortWRTDates(data)    
-    plot_ohlc_data(data,caption=valDefault)
+    plotBasicTA(data,params = [9,21,50,12,26])
 
 stocks = db.dailyData.distinct("symbol")
 # st.text(stocks)
