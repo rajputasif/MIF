@@ -396,6 +396,9 @@ def showPlot_KMI_EntryExit(df,
     #--------------------------------------Dip Detection
     df['change'] = df['Close'].pct_change()*100
     x = df['change'].rolling(dipDays).sum()
+    allDips = x[x<-2.0]
+    for i in range(len(allDips)):
+        axs[1].axvline(allDips.index[i], color ='orange',linestyle='--')
     allDips = x[x<dipThresh]
     for i in range(len(allDips)):
         axs[1].axvline(allDips.index[i], color ='r',linestyle='--')
