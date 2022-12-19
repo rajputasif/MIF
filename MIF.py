@@ -773,7 +773,7 @@ def plotBasicTA(ds,params):
 
     x=df.iloc[-1]
     outStr =("Closing:"+str(x.Close)+"\n"+
-            "Long_Histogram:"+str(x.MACD-x.Signal)+"\n"+
+            "Histogram:"+str(x.MACD-x.Signal)+"\n"+
             "RSI:"+str(math.floor(x.RSI))            
             )
     ax = plt.gca()
