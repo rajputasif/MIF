@@ -772,8 +772,13 @@ def plotBasicTA(ds,params):
     axs[1].plot(df['emaLong'],linewidth='2',linestyle='--')
 
     x=df.iloc[-1]
+    xm1 = df.iloc[-2]
     outStr =("Closing:"+str(x.Close)+"\n"+
             "Histogram:"+str(x.MACD-x.Signal)+"\n"+
+            "Histogram[n-1]:"+str(xm1.MACD-xm1.Signal)+"\n"+
+            str(midLen)+"-EMA:"+str(x.emaMid)+"\n"+
+            str(shortLen)+"-EMA:"+str(x.emaShort)+"\n"+
+            "Histogram[n-1]:"+str(xm1.MACD-xm1.Signal)+"\n"+
             "RSI:"+str(math.floor(x.RSI))            
             )
     ax = plt.gca()
