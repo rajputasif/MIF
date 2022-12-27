@@ -778,7 +778,6 @@ def plotBasicTA(ds,params):
             "Histogram[n-1]:"+str(xm1.MACD-xm1.Signal)+"\n"+
             str(midLen)+"-EMA:"+str(x.emaMid)+"\n"+
             str(shortLen)+"-EMA:"+str(x.emaShort)+"\n"+
-            "Histogram[n-1]:"+str(xm1.MACD-xm1.Signal)+"\n"+
             "RSI:"+str(math.floor(x.RSI))            
             )
     ax = plt.gca()
