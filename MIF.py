@@ -816,7 +816,14 @@ st.success('MongoDB connected!')
 
 if plotDefault:
     # st.info('Plotting the default value')
-    data = mo.getUpdatedDailyData(valDefault)
+    if( valDefault == 'MIF' or 
+        valDefault == 'MEF' or 
+        valDefault == 'KMIF' or 
+        valDefault == 'MAAF' or 
+        valDefault == 'MGF'):
+        data = mo.getDailyData(valDefault)
+    else:
+        data = mo.getUpdatedDailyData(valDefault)
     data = sortWRTDates(data)    
     plotBasicTA(data,params = [9,21,50,12,26])
 
